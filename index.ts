@@ -206,20 +206,20 @@ const scanBot = new WalletScan(process.env.BSC_WWS_ARCHIVE_MAINNET as string, "B
 client.on("message", async (message: Message)=>{
     
     if(message.channelId === process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID){
-        if(message.content?.toLowerCase().replace(" ","").indexOf("StartPenndingTXGT"?.toLowerCase()) >= 0){
-            scanBot.scanWalletGreaterThan(200, "BNB", "pendingTransactions").then();
-        }
-        else if(message.content?.toLowerCase().replace(" ", "") === "StopPenndingTXGT"?.toLowerCase()){
-            scanBot.pendingTxSubcription.unsubscribe();
-        }
-        else if(message.content?.toLowerCase().replace(" ", "").indexOf("StartPenndingTXFriendly".toLowerCase()) >=0){
+        // if(message.content?.toLowerCase().replace(" ","").indexOf("StartPenndingTXGT"?.toLowerCase()) >= 0){
+        //     scanBot.scanWalletGreaterThan(200, "BNB", "pendingTransactions").then();
+        // }
+        // else if(message.content?.toLowerCase().replace(" ", "") === "StopPenndingTXGT"?.toLowerCase()){
+        //     scanBot.pendingTxSubcription.unsubscribe();
+        // }
+        if(message.content?.toLowerCase().replace(" ", "").indexOf("Start".toLowerCase()) >=0){
             const str = message.content?.toLowerCase().replace(" ", "");
             const minTx = Number(str.replace( /^\D+/g, '')) === 0 ? "10" : Number(str.replace( /^\D+/g, ''));
             console.log(minTx)
             console.log(minTx);
             scanBot.scanWalletGreaterThanFriendly(minTx, "BNB", "pendingTransactions").then();
         }
-        else if(message.content?.toLowerCase().replace(" ", "") === "StopPenndingTXFriendly"?.toLowerCase()){
+        else if(message.content?.toLowerCase().replace(" ", "") === "stop"?.toLowerCase()){
             scanBot.pendingTxFriendlySubcription.unsubscribe();
         }
         else if(message.content.toLowerCase().replace(" ","") === "BillionAssetInfoAscending".toLowerCase()){

@@ -218,22 +218,22 @@ const sendToScanAssetByAdressChannel = (msg) => {
 };
 const scanBot = new WalletScan(process.env.BSC_WWS_ARCHIVE_MAINNET, "BSC");
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     if (message.channelId === process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID) {
-        if (((_a = message.content) === null || _a === void 0 ? void 0 : _a.toLowerCase().replace(" ", "").indexOf("StartPenndingTXGT" === null || "StartPenndingTXGT" === void 0 ? void 0 : "StartPenndingTXGT".toLowerCase())) >= 0) {
-            scanBot.scanWalletGreaterThan(200, "BNB", "pendingTransactions").then();
-        }
-        else if (((_b = message.content) === null || _b === void 0 ? void 0 : _b.toLowerCase().replace(" ", "")) === ("StopPenndingTXGT" === null || "StopPenndingTXGT" === void 0 ? void 0 : "StopPenndingTXGT".toLowerCase())) {
-            scanBot.pendingTxSubcription.unsubscribe();
-        }
-        else if (((_c = message.content) === null || _c === void 0 ? void 0 : _c.toLowerCase().replace(" ", "").indexOf("StartPenndingTXFriendly".toLowerCase())) >= 0) {
-            const str = (_d = message.content) === null || _d === void 0 ? void 0 : _d.toLowerCase().replace(" ", "");
+        // if(message.content?.toLowerCase().replace(" ","").indexOf("StartPenndingTXGT"?.toLowerCase()) >= 0){
+        //     scanBot.scanWalletGreaterThan(200, "BNB", "pendingTransactions").then();
+        // }
+        // else if(message.content?.toLowerCase().replace(" ", "") === "StopPenndingTXGT"?.toLowerCase()){
+        //     scanBot.pendingTxSubcription.unsubscribe();
+        // }
+        if (((_a = message.content) === null || _a === void 0 ? void 0 : _a.toLowerCase().replace(" ", "").indexOf("Start".toLowerCase())) >= 0) {
+            const str = (_b = message.content) === null || _b === void 0 ? void 0 : _b.toLowerCase().replace(" ", "");
             const minTx = Number(str.replace(/^\D+/g, '')) === 0 ? "10" : Number(str.replace(/^\D+/g, ''));
             console.log(minTx);
             console.log(minTx);
             scanBot.scanWalletGreaterThanFriendly(minTx, "BNB", "pendingTransactions").then();
         }
-        else if (((_e = message.content) === null || _e === void 0 ? void 0 : _e.toLowerCase().replace(" ", "")) === ("StopPenndingTXFriendly" === null || "StopPenndingTXFriendly" === void 0 ? void 0 : "StopPenndingTXFriendly".toLowerCase())) {
+        else if (((_c = message.content) === null || _c === void 0 ? void 0 : _c.toLowerCase().replace(" ", "")) === ("stop" === null || "stop" === void 0 ? void 0 : "stop".toLowerCase())) {
             scanBot.pendingTxFriendlySubcription.unsubscribe();
         }
         else if (message.content.toLowerCase().replace(" ", "") === "BillionAssetInfoAscending".toLowerCase()) {
