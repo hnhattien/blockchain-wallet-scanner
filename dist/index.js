@@ -67,19 +67,73 @@ class WalletScan {
         __classPrivateFieldSet(this, _WalletScan_web3Ether, __classPrivateFieldGet(this, _WalletScan_web3, "f").eth, "f");
         __classPrivateFieldSet(this, _WalletScan_networkName, networkName, "f");
     }
-    sendFriendlyMessageFromTransaction(transaction, onlyAddress = false) {
-        if (onlyAddress) {
-            sendToBillionTransferInfoChannel(transaction.from);
-            sendToBillionTransferInfoChannel(transaction.to);
-        }
-        else {
-            let message;
-            const value = __classPrivateFieldGet(this, _WalletScan_web3Utils, "f").fromWei(transaction.value, "ether") + (__classPrivateFieldGet(this, _WalletScan_networkName, "f") === "BSC" ? " BNB " : " ETH ");
-            message = `:sponge: ${transaction.from} transfered ${transaction.to} with ${value}\nTxHash: ${transaction.hash} :sponge:`;
-            sendToBillionTransferInfoChannel(message);
+    sendFriendlyMessageFromTransaction(transaction) {
+        let message;
+        const value = __classPrivateFieldGet(this, _WalletScan_web3Utils, "f").fromWei(transaction.value, "ether") + (__classPrivateFieldGet(this, _WalletScan_networkName, "f") === "BSC" ? " BNB " : " ETH ");
+        message = `:sponge: ${transaction.from} transfered ${transaction.to} with ${value}\nTxHash: ${transaction.hash} :sponge:`;
+        sendToBillionTransferInfoChannel(message);
+        sendToBillionTransferAddressInfoChannel(transaction.from);
+        if (transaction.to) {
+            sendToBillionTransferAddressInfoChannel(transaction.to);
         }
     }
-    scanWalletGreaterThanFriendly(assetAmount, convertFromUnit, whichEvent, onlyAddress = false) {
+    sendFriendlyAssetInfoMessageFromAddress(address) {
+    }
+    scanWalletGreaterThan(assetAmount, convertFromUnit, whichEvent) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let assetAmountWei; //This will scan all asset, include contract Token
+            assetAmountWei = __classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toWei(__classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toBN(assetAmount), "ether");
+            if (whichEvent === "pendingTransactions") {
+                try {
+                    const subscription = __classPrivateFieldGet(this, _WalletScan_web3Ether, "f").subscribe("pendingTransactions");
+                    subscription.on("data", (txHash) => {
+                        try {
+                            __classPrivateFieldGet(this, _WalletScan_web3Ether, "f").getTransaction(txHash, (err, transaction) => __awaiter(this, void 0, void 0, function* () {
+                                console.log(err);
+                                console.log(transaction);
+                                if (err) {
+                                    sendToBillionTransferInfoChannel(String(err));
+                                }
+                                else {
+                                    if (transaction) {
+                                        if (transaction.value) {
+                                            yield (0, delay_1.default)(5000);
+                                            sendToBillionTransferInfoChannel(JSON.stringify(transaction, null, "\t"));
+                                        }
+                                    }
+                                }
+                            }));
+                        }
+                        catch (err) {
+                            sendToBillionTransferInfoChannel(String(err));
+                            console.log(err);
+                        }
+                    });
+                    this.pendingTxSubcription = subscription;
+                }
+                catch (err) {
+                    sendToBillionTransferInfoChannel(String(err));
+                }
+            }
+            else if (whichEvent === "logs") {
+                try {
+                }
+                catch (err) {
+                    sendToBillionTransferInfoChannel(String(err));
+                }
+            }
+        });
+    }
+    scanWalletLessThan(assetAmount, convertFromUnit, whichEvent) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+            }
+            catch (err) {
+                sendToBillionTransferInfoChannel(String(err));
+            }
+        });
+    }
+    scanWalletGreaterThanFriendly(assetAmount, convertFromUnit, whichEvent) {
         return __awaiter(this, void 0, void 0, function* () {
             let assetAmountWei; //This will scan all asset, include contract Token
             assetAmountWei = __classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toWei(__classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toBN(assetAmount), "ether");
@@ -90,7 +144,7 @@ class WalletScan {
                         try {
                             __classPrivateFieldGet(this, _WalletScan_web3Ether, "f").getTransaction(txHash, (err, transaction) => __awaiter(this, void 0, void 0, function* () {
                                 if (err) {
-                                    sendToBillionTransferInfoChannel(String(err), onlyAddress);
+                                    sendToBillionTransferInfoChannel(String(err));
                                 }
                                 else {
                                     if (transaction) {
@@ -98,7 +152,7 @@ class WalletScan {
                                             const minTransaction = __classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toWei(__classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toBN(assetAmount), "ether");
                                             if (__classPrivateFieldGet(this, _WalletScan_web3Utils, "f").toBN(transaction.value).cmp(minTransaction) >= 0) {
                                                 yield (0, delay_1.default)(5000);
-                                                this.sendFriendlyMessageFromTransaction(transaction, onlyAddress);
+                                                this.sendFriendlyMessageFromTransaction(transaction);
                                             }
                                         }
                                     }
@@ -112,7 +166,7 @@ class WalletScan {
                     this.pendingTxFriendlySubcription = subscription;
                 }
                 catch (err) {
-                    sendToBillionTransferInfoChannel(String(err), onlyAddress);
+                    sendToBillionTransferInfoChannel(String(err));
                     console.log(err);
                 }
             }
@@ -120,7 +174,7 @@ class WalletScan {
                 try {
                 }
                 catch (err) {
-                    sendToBillionTransferInfoChannel(String(err), onlyAddress);
+                    sendToBillionTransferInfoChannel(String(err));
                 }
             }
         });
@@ -138,10 +192,23 @@ class WalletScan {
 }
 _WalletScan_network = new WeakMap(), _WalletScan_web3 = new WeakMap(), _WalletScan_web3Utils = new WeakMap(), _WalletScan_web3Ether = new WeakMap(), _WalletScan_networkName = new WeakMap();
 const port = process.env.PORT || 3000;
-const sendToBillionTransferInfoChannel = (msg, onlyAddress = false) => {
-    const channelId = onlyAddress ? '937376057177280622' : process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID;
+const sendToBillionTransferInfoChannel = (msg) => {
     try {
-        client.channels.fetch(channelId).then((channel) => {
+        client.channels.fetch(process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID).then((channel) => {
+            if (channel) {
+                channel.send(msg);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+const sendToBillionTransferAddressInfoChannel = (msg) => {
+    try {
+        client.channels.fetch('937376057177280622').then((channel) => {
             if (channel) {
                 channel.send(msg);
             }
@@ -169,7 +236,7 @@ const sendToScanAssetByAdressChannel = (msg) => {
 };
 const scanBot = new WalletScan(process.env.BSC_WWS_ARCHIVE_MAINNET, "BSC");
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c;
     if (message.channelId === process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID) {
         // if(message.content?.toLowerCase().replace(" ","").indexOf("StartPenndingTXGT"?.toLowerCase()) >= 0){
         //     scanBot.scanWalletGreaterThan(200, "BNB", "pendingTransactions").then();
@@ -185,20 +252,6 @@ client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* ()
             scanBot.scanWalletGreaterThanFriendly(minTx, "BNB", "pendingTransactions").then();
         }
         else if (((_c = message.content) === null || _c === void 0 ? void 0 : _c.toLowerCase().replace(" ", "")) === ("stop" === null || "stop" === void 0 ? void 0 : "stop".toLowerCase())) {
-            scanBot.pendingTxFriendlySubcription.unsubscribe();
-        }
-        else if (message.content.toLowerCase().replace(" ", "") === "BillionAssetInfoAscending".toLowerCase()) {
-        }
-    }
-    else if (message.channelId === '937376057177280622') {
-        if (((_d = message.content) === null || _d === void 0 ? void 0 : _d.toLowerCase().replace(" ", "").indexOf("Start".toLowerCase())) >= 0) {
-            const str = (_e = message.content) === null || _e === void 0 ? void 0 : _e.toLowerCase().replace(" ", "");
-            const minTx = Number(str.replace(/^\D+/g, '')) === 0 ? "10" : Number(str.replace(/^\D+/g, ''));
-            console.log(minTx);
-            console.log(minTx);
-            scanBot.scanWalletGreaterThanFriendly(minTx, "BNB", "pendingTransactions", true).then();
-        }
-        else if (((_f = message.content) === null || _f === void 0 ? void 0 : _f.toLowerCase().replace(" ", "")) === ("stop" === null || "stop" === void 0 ? void 0 : "stop".toLowerCase())) {
             scanBot.pendingTxFriendlySubcription.unsubscribe();
         }
         else if (message.content.toLowerCase().replace(" ", "") === "BillionAssetInfoAscending".toLowerCase()) {
