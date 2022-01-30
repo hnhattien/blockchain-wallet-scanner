@@ -10,7 +10,7 @@
     "start": "node dist/index.js",
     "build": "tsc -p ./tsconfig.json",
     "dev": "nodemon index.ts",
-    "public": "tsc -p ./tsconfig.json && git add . && git commit -m 'Hi' && git push https://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@github.com/hoangtien0105/scanbillionbot.git"
+    "public": "tsc -p ./tsconfig.json && git add . && git commit -m 'Hi' && git push https://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@github.com/nhattien015/ScanWalletBot.git"
   },
   "author": "",
   "license": "ISC",
