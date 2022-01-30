@@ -72,7 +72,9 @@ class WalletScan {
         const value = __classPrivateFieldGet(this, _WalletScan_web3Utils, "f").fromWei(transaction.value, "ether") + (__classPrivateFieldGet(this, _WalletScan_networkName, "f") === "BSC" ? " BNB " : " ETH ");
         message = `:sponge: ${transaction.from} transfered ${transaction.to} with ${value}\nTxHash: ${transaction.hash} :sponge:`;
         sendToBillionTransferInfoChannel(message);
+        (0, delay_1.default)(1000).then();
         sendToBillionTransferAddressInfoChannel(transaction.from);
+        (0, delay_1.default)(1000).then();
         if (transaction.to) {
             sendToBillionTransferAddressInfoChannel(transaction.to);
         }

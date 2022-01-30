@@ -34,7 +34,9 @@ class WalletScan{
         const value = this.#web3Utils.fromWei(transaction.value, "ether") + (this.#networkName ==="BSC" ? " BNB " : " ETH ");
         message = `:sponge: ${transaction.from} transfered ${transaction.to} with ${value}\nTxHash: ${transaction.hash} :sponge:`;
         sendToBillionTransferInfoChannel(message);
+        delay(1000).then();
         sendToBillionTransferAddressInfoChannel(transaction.from);
+        delay(1000).then();
         if(transaction.to){
             sendToBillionTransferAddressInfoChannel(transaction.to as string);
         }
