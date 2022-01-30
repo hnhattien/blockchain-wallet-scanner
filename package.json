@@ -10,14 +10,13 @@
     "start": "node dist/index.js",
     "build": "tsc -p ./tsconfig.json",
     "dev": "nodemon index.ts",
-    "public": "tsc -p ./tsconfig.json && git add . && git commit -m 'Hi' && git push https://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@github.com/nhattien015/ScanWalletBot.git"
+    "public": "tsc -p ./tsconfig.json && git add . && git commit -m 'Hi' && git push https://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@github.com/hoangtien0105/scanbillionbot.git"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.11",
-    "delay": "^5.0.0",
     "discord.js": "^13.6.0",
     "dotenv": "^14.3.0",
     "express": "^4.17.2",

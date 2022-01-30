@@ -244,8 +244,8 @@ client.on("message", async (message: Message)=>{
                     addressContract: contractData.contract_address
                 })
             }
-            
-            
+
+
             let response = "";
             console.log(assets);
             assets.forEach((asset) => {
@@ -259,7 +259,20 @@ client.on("message", async (message: Message)=>{
          }   
         }
     }
-
+    else if(message.channelId === process.env.FOLLOW_SHARK_TRADING_DISCORD_CHANNEL_ID){
+       if(scanBot.getWeb3().utils.isAddress(message.content)){
+            message.reply("Subcribed event trade on this address.");
+            
+       }
+       else{
+           message.reply("Only type address on this channel.");
+       }
+    }
+    else if(message.channelId === process.env.ADDRESS_TO_BSCSCAN_LINK){
+        if(scanBot.getWeb3().utils.isAddress(message.content)){
+            message.reply(`https://bscscan.com/address/`+message.content);
+        }
+    }
 
 })
 client.on("ready", () => {
