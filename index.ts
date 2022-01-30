@@ -29,78 +29,21 @@ class WalletScan{
         this.#web3Ether = this.#web3.eth;
         this.#networkName = networkName;
     }
-    sendFriendlyMessageFromTransaction(transaction: Transaction){
-        let message;
-        const value = this.#web3Utils.fromWei(transaction.value, "ether") + (this.#networkName ==="BSC" ? " BNB " : " ETH ");
-        message = `:sponge: ${transaction.from} transfered ${transaction.to} with ${value}\nTxHash: ${transaction.hash} :sponge:`;
-        sendToBillionTransferInfoChannel(message);
+    sendFriendlyMessageFromTransaction(transaction: Transaction, onlyAddress: boolean = false){
+        if(onlyAddress){
+            sendToBillionTransferInfoChannel(transaction.from);
+            sendToBillionTransferInfoChannel(transaction.to as string);
+        }
+        else{
+            let message;
+            const value = this.#web3Utils.fromWei(transaction.value, "ether") + (this.#networkName ==="BSC" ? " BNB " : " ETH ");
+            message = `:sponge: ${transaction.from} transfered ${transaction.to} with ${value}\nTxHash: ${transaction.hash} :sponge:`;
+            sendToBillionTransferInfoChannel(message);
+        }
     }
-    sendFriendlyAssetInfoMessageFromAddress(address: string){
-       
-    }
-    async scanWalletGreaterThan(assetAmount: string | number, convertFromUnit : "BNB" | "Ether" , whichEvent: string){
-      let assetAmountWei; //This will scan all asset, include contract Token
-      
-      assetAmountWei = this.#web3Utils.toWei(this.#web3Utils.toBN(assetAmount), "ether");
-      
-      if(whichEvent === "pendingTransactions"){
-       
-            
-            try{
-                const subscription = this.#web3Ether.subscribe("pendingTransactions")
-                subscription.on("data", (txHash: string) => {
-                    
-                        try{
-                            this.#web3Ether.getTransaction(txHash, async (err, transaction) => {
-                                console.log(err);
-                                console.log(transaction);
-                                if(err){
-                                    sendToBillionTransferInfoChannel(String(err));
-                                }
-                                else{
-                                   if(transaction){
-                                        if(transaction.value){
-                                            await delay(5000);
-                                            sendToBillionTransferInfoChannel(JSON.stringify(transaction,null,"\t"));
-                                        }
-                                   }
-                                }
-                            })
-                        }catch(err){
-                            sendToBillionTransferInfoChannel(String(err));
-                            console.log(err);
-                        }
-                    
-                })
-                this.pendingTxSubcription = subscription;
-            }catch(err){
-                sendToBillionTransferInfoChannel(String(err));
-            }
-               
-                    
-               
-          
-            
-         
-      }
-      else if(whichEvent === "logs"){
-          try{
-
-          }catch(err){
-            sendToBillionTransferInfoChannel(String(err));
-          }
-      }
-      
-      
-    }
-    async scanWalletLessThan(assetAmount: string | number, convertFromUnit : "BNB" | "Ether" , whichEvent: string){
-      try{
-
-      }catch(err){
-          sendToBillionTransferInfoChannel(String(err));
-      }
-    }
-    async scanWalletGreaterThanFriendly(assetAmount: string | number, convertFromUnit : "BNB" | "Ether" , whichEvent: string){
+  
+    
+    async scanWalletGreaterThanFriendly(assetAmount: string | number, convertFromUnit : "BNB" | "Ether" , whichEvent: string, onlyAddress: boolean = false){
         let assetAmountWei; //This will scan all asset, include contract Token
       
         assetAmountWei = this.#web3Utils.toWei(this.#web3Utils.toBN(assetAmount), "ether");
@@ -116,7 +59,7 @@ class WalletScan{
                                     this.#web3Ether.getTransaction(txHash, async (err, transaction) => {
                                         
                                         if(err){
-                                        sendToBillionTransferInfoChannel(String(err));
+                                            sendToBillionTransferInfoChannel(String(err), onlyAddress);
                                         }
                                     else{
                                         if(transaction){
@@ -124,7 +67,7 @@ class WalletScan{
                                                 const minTransaction = this.#web3Utils.toWei(this.#web3Utils.toBN(assetAmount), "ether"); 
                                                 if(this.#web3Utils.toBN(transaction.value).cmp(minTransaction) >= 0){
                                                     await delay(5000);
-                                                    this.sendFriendlyMessageFromTransaction(transaction);
+                                                    this.sendFriendlyMessageFromTransaction(transaction, onlyAddress);
                                                     
                                                 }
 
@@ -148,7 +91,7 @@ class WalletScan{
           
               this.pendingTxFriendlySubcription = subscription;
             }catch(err){
-                sendToBillionTransferInfoChannel(String(err));
+                sendToBillionTransferInfoChannel(String(err), onlyAddress);
                 console.log(err);
             }
         }
@@ -156,7 +99,7 @@ class WalletScan{
             try{
   
             }catch(err){
-              sendToBillionTransferInfoChannel(String(err));
+              sendToBillionTransferInfoChannel(String(err), onlyAddress);
             }
         }
         
@@ -175,9 +118,10 @@ class WalletScan{
 
 
 const port = process.env.PORT || 3000;
-const sendToBillionTransferInfoChannel = (msg: string) => {
+const sendToBillionTransferInfoChannel = (msg: string, onlyAddress: boolean = false) => {
+    const channelId = onlyAddress ? '937376057177280622' : process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID;
     try{
-        client.channels.fetch(process.env.TRANSFER_INFO_DISCORD_CHANNEL_ID as string).then((channel: AnyChannel | null) => {
+        client.channels.fetch(channelId as string).then((channel: AnyChannel | null) => {
             if(channel){
                 (channel as TextChannel).send(msg);
             }
@@ -227,6 +171,21 @@ client.on("message", async (message: Message)=>{
         }
     }
 
+    else if(message.channelId === '937376057177280622'){
+        if(message.content?.toLowerCase().replace(" ", "").indexOf("Start".toLowerCase()) >=0){
+            const str = message.content?.toLowerCase().replace(" ", "");
+            const minTx = Number(str.replace( /^\D+/g, '')) === 0 ? "10" : Number(str.replace( /^\D+/g, ''));
+            console.log(minTx)
+            console.log(minTx);
+            scanBot.scanWalletGreaterThanFriendly(minTx, "BNB", "pendingTransactions", true).then();
+        }
+        else if(message.content?.toLowerCase().replace(" ", "") === "stop"?.toLowerCase()){
+            scanBot.pendingTxFriendlySubcription.unsubscribe();
+        }
+        else if(message.content.toLowerCase().replace(" ","") === "BillionAssetInfoAscending".toLowerCase()){
+    
+        }
+    }
     else if(message.channelId === process.env.SCAN_ASSET_INFO_DISCORD_CHANNEL_ID){
         if(scanBot.getWeb3().utils.isAddress(message.content)){
             try{
