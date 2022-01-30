@@ -194,7 +194,7 @@ const sendToBillionTransferInfoChannel = (msg: string) => {
 }
 const sendToBillionTransferAddressInfoChannel = (msg : string) => {
    try{
-        client.channels.fetch('937376057177280622' as string).then((channel: AnyChannel | null) => {
+        client.channels.fetch('937376057177280622').then((channel: AnyChannel | null) => {
             if(channel){
                 (channel as TextChannel).send(msg);
             }
